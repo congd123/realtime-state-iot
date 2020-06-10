@@ -1,0 +1,18 @@
+{
+    "namespace": "iot.trigger",
+    "type": "record",
+    "name": "Trigger",
+    "fields":[
+        {"name": "id", "type": "string"},
+        {"name": "name", "type": "string"},
+        {"name": "state", "type": "int"},
+        {"name": "timestamp", "type": "int"},
+        {"name": "value", "type": "int"},
+        {"name": "operator", "type": {
+            "name": "Operator", "type": "enum", "symbols": ["GREAT", "LESS", "EQUAL"]
+        }},
+        {"name": "device", "type": {
+            "name": "Device", "type": "enum", "symbols": ["PIR", "CAMERA", "SIREN", "LIGHT", "TEMPERATURE"]
+        }}
+    ]
+}

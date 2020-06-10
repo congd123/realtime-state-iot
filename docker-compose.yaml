@@ -1,0 +1,59 @@
+version: "2.2"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:5.5.0
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:19092,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafka_topics:
+    image: skyuk/kafka-configurator
+    depends_on:
+      - kafka
+    command: -f /topics/topics.yaml --bootstrap-servers kafka:19092
+    volumes:
+      - ./docker/kafka:/topics
+    restart: on-failure
+
+  jobmanager:
+    build:
+      context: .
+    ports:
+      - "8081:8081"
+    depends_on:
+      - kafka
+    command: jobmanager.sh start-foreground
+    volumes:
+      - ./docker/flink:/opt/flink/conf
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      - FLINK_ENV_JAVA_OPTS=-Dlog.file=/var/log/jobmanager.out
+
+  taskmanager:
+    build:
+      context: .
+    ports:
+      - "9067:9067"
+      - "9069:9069"
+    depends_on:
+      - jobmanager
+      - kafka_topics
+    command: taskmanager.sh start-foreground
+    volumes:
+      - ./docker/flink:/opt/flink/conf
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      - FLINK_ENV_JAVA_OPTS=-Dlog.file=/var/log/taskmanager.out

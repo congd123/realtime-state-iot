@@ -1,0 +1,11 @@
+devices.state:
+  partitions: 2
+  replication: 1
+
+devices.alert:
+  partitions: 2
+  replication: 1
+
+devices.trigger:
+  partitions: 2
+  replication: 1

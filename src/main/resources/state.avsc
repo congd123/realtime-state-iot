@@ -1,0 +1,14 @@
+{
+    "namespace": "iot.state",
+    "type": "record",
+    "name": "State",
+    "fields":[
+        {"name": "id", "type": "string"},
+        {"name": "name", "type": "string"},
+        {"name": "value", "type": "string"},
+        {"name": "timestamp", "type": "int"},
+        {"name": "device", "type": {
+            "name": "Device", "type": "enum", "symbols": ["PIR", "CAMERA", "SIREN", "LIGHT", "TEMPERATURE"]
+        }}
+    ]
+}
